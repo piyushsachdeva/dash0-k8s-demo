@@ -1,13 +1,13 @@
 # Zero to Full-Stack Observability on Kubernetes in 20 Minutes
 
-Dash0 operator + Istio Bookinfo (Python, Ruby, Java, Node.js) on a local kind cluster.
+Dash0 operator + Istio Bookinfo (Python, Ruby, Java, Node.js) on kind.
 
-**Needs:** Docker, `kind`, `kubectl`, `helm`, a [Dash0](https://app.dash0.com) account.
+**Needs:** Docker, `kind`, `kubectl`, `helm`, [Dash0](https://app.dash0.com) account.
 
 ## 0. Setup
 
 ```bash
-cp .env.example .env   # Dash0 → Settings → Endpoints ("OTLP via gRPC", "API") + Auth Tokens
+cp .env.example .env   # fill from Dash0 → Endpoints + Auth Tokens
 set -a; source .env; set +a
 ```
 
@@ -17,17 +17,17 @@ set -a; source .env; set +a
 kind create cluster --name dash0-demo
 ```
 
-## 2. Deploy the app
+## 2. Deploy app
 
 ```bash
 kubectl apply -k app/
 kubectl -n bookinfo wait --for=condition=available deploy --all --timeout=5m
-kubectl -n bookinfo port-forward svc/productpage 9080:9080   # http://localhost:9080/productpage
+kubectl -n bookinfo port-forward svc/productpage 9080:9080   # localhost:9080/productpage
 ```
 
-![App running](screenshots/01-app-running.jpg)
+![](screenshots/01-app-running.jpg)
 
-## 3. Install the Dash0 operator
+## 3. Install operator
 
 ```bash
 helm repo add dash0-operator https://dash0hq.github.io/dash0-operator && helm repo update dash0-operator
@@ -42,7 +42,7 @@ helm install --wait --namespace dash0-system --create-namespace \
   dash0-operator dash0-operator/dash0-operator
 ```
 
-## 4. Turn on monitoring
+## 4. Enable monitoring
 
 ```bash
 kubectl apply -n bookinfo -f dash0/dash0-monitoring.yaml
@@ -52,24 +52,19 @@ kubectl -n bookinfo get pods -w
 ## 5. Dash0
 
 **Services → Catalog**
-
-![Services catalog](screenshots/05-services-catalog.jpg)
+![](screenshots/05-services-catalog.jpg)
 
 **Services → Map**
-
-![Services map](screenshots/02-services-map.jpg)
+![](screenshots/02-services-map.jpg)
 
 **Tracing**
-
-![Trace waterfall](screenshots/03-trace-waterfall.jpg)
+![](screenshots/03-trace-waterfall.jpg)
 
 **Logging**
+![](screenshots/04-logs.jpg)
 
-![Logs](screenshots/04-logs.jpg)
-
-**Resources → Kubernetes → Pods**
-
-![Pod metrics](screenshots/06-pod-metrics.jpg)
+**Resources → Pods**
+![](screenshots/06-pod-metrics.jpg)
 
 ## 6. Teardown
 
