@@ -1,0 +1,19 @@
+# Istio Bookinfo sample (unmodified upstream, runs without Istio) + a tiny traffic generator.
+# productpage=Python, details=Ruby, reviews=Java, ratings=Node.js — multi-arch images (amd64 + arm64).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: bookinfo
+resources:
+  - namespace.yaml
+  - https://raw.githubusercontent.com/istio/istio/1.31.1/samples/bookinfo/platform/kube/bookinfo.yaml
+  - loadgen.yaml
+# Standard k8s label → Dash0 service.name (Bookinfo only sets `app:`)
+patches:
+  - target: { kind: Deployment, name: productpage-.* }
+    patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"productpage"}]'
+  - target: { kind: Deployment, name: details-.* }
+    patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"details"}]'
+  - target: { kind: Deployment, name: ratings-.* }
+    patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"ratings"}]'
+  - target: { kind: Deployment, name: reviews-.* }
+    patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"reviews"}]'

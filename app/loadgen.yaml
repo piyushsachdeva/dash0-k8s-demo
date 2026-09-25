@@ -1,0 +1,16 @@
+# Hits the product page every second so Dash0 always has fresh traces.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  labels:
+    dash0.com/enable: "false"   # traffic tool, not part of the app — skip instrumentation
+spec:
+  selector: { matchLabels: { app: loadgen } }
+  template:
+    metadata: { labels: { app: loadgen } }
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:8.16.0
+          command: ["sh", "-c", "while true; do curl -s -o /dev/null -w '%{http_code}\\n' http://productpage:9080/productpage?u=normal; sleep 1; done"]
