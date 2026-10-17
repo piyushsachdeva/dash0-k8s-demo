@@ -1,0 +1,27 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: dash0-demo
+kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    controllerManager:
+      extraArgs:
+        leader-elect: "false"
+    scheduler:
+      extraArgs:
+        leader-elect: "false"
+  # Reserve CPU/memory for the kubelet and control plane so app pods can never starve them,
+  # and evict early rather than letting the node lock up under memory pressure.
+  - |
+    kind: KubeletConfiguration
+    systemReserved:
+      cpu: "200m"
+      memory: "256Mi"
+    kubeReserved:
+      cpu: "200m"
+      memory: "256Mi"
+    evictionHard:
+      memory.available: "200Mi"
+      nodefs.available: "5%"
+nodes:
+  - role: control-plane

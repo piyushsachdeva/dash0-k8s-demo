@@ -17,3 +17,48 @@ patches:
     patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"ratings"}]'
   - target: { kind: Deployment, name: reviews-.* }
     patch: '[{"op":"add","path":"/spec/template/metadata/labels/app.kubernetes.io~1name","value":"reviews"}]'
+
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: reviews-v3
+      $patch: delete
+
+  - target: { kind: Deployment, name: productpage-v1 }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: { cpu: 100m, memory: 256Mi }
+          limits:   { cpu: 1000m, memory: 640Mi }
+  - target: { kind: Deployment, name: details-v1 }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: { cpu: 25m, memory: 48Mi }
+          limits:   { cpu: 300m, memory: 192Mi }
+  - target: { kind: Deployment, name: ratings-v1 }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: { cpu: 25m, memory: 48Mi }
+          limits:   { cpu: 300m, memory: 192Mi }
+  # reviews-v1 (no ratings call) + reviews-v2 (calls ratings) both run, so the Service
+  # round-robins ~50/50. That split is what makes the part 9 failure intermittent.
+  - target: { kind: Deployment, name: reviews-v(1|2) }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: { cpu: 100m, memory: 128Mi }
+          limits:   { cpu: 800m, memory: 384Mi }
+  - target: { kind: Deployment, name: loadgen }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: { cpu: 10m, memory: 16Mi }
+          limits:   { cpu: 50m, memory: 32Mi }
